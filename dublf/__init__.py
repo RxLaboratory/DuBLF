@@ -118,6 +118,16 @@ class DUBLF_handlers():
         """Removes a function from frame_change_pre handler"""
         DUBLF_handlers.remove_function( bpy.app.handlers.frame_change_post, fn )
 
+    @staticmethod
+    def depsgraph_update_post_append( fn ):
+        """Appends a function to frame_change_pre handler, taking care of duplicates"""
+        DUBLF_handlers.append_function_unique( bpy.app.handlers.depsgraph_update_post, fn )
+
+    @staticmethod
+    def depsgraph_update_post_remove( fn ):
+        """Removes a function from frame_change_pre handler"""
+        DUBLF_handlers.remove_function( bpy.app.handlers.depsgraph_update_post, fn )
+
 # ========= RNA ========================
 
 class DuBLF_rna():

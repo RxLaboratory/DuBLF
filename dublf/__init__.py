@@ -163,7 +163,19 @@ class DuBLF_rna():
             return None           
         except:
             return None
-            
+
+# ========= ADDONS =====================
+
+class DuBLF_addons():
+    """Methods to work with addons"""
+
+    @staticmethod
+    def is_addon_enabled( moduleName ):
+        addons = bpy.context.preferences.addons
+        for addon in addons:
+            if addon.module == moduleName:
+                return True
+        return False
 
 def register():
     rigging.register()

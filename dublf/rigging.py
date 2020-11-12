@@ -131,8 +131,6 @@ class DUBLF_rigging():
         var.targets[0].transform_space = transformSpace
         var.targets[0].transform_type = transformType
 
-        @staticmethod
-    
     @staticmethod
     def applyParentInverse( obj ):
         """Applies the parent inverse transformation to the actual transformations of an object."""

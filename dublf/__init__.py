@@ -21,6 +21,7 @@
 # Useful tools to develop scripts in Blender
 
 import bpy # pylint: disable=import-error
+from bpy_extras.image_utils import load_image  # pylint: disable=import-error
 import time
 import re
 import importlib
@@ -225,11 +226,31 @@ class DuBLF_collections():
         # move to the new
         destination.children.link(collection)
         
-
 # ========= MATERIALS ==================
 
 class DuBLF_materials():
     """Material related methods"""
+
+    @staticmethod
+    def create_image_material( image, matName="Image", shading = 'SHADELESS'):
+        material = bpy.data.materials.new(matName)
+        material.use_nodes = True
+        node_tree = material.node_tree
+        output_node = DuBLF_materials.clean_node_tree(node_tree)
+
+        material.blend_method = 'BLEND'
+        material.shadow_method = 'HASHED'
+
+        texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+        im = load_image(image, check_existing=True, force_reload=True)
+        texture_node.image = im
+        texture_node.show_texture = True
+        texture_node.extension = 'CLIP'
+
+        # Create tree
+        DuBLF_materials.create_color_alpha_tree( node_tree, texture_node.outputs[0], texture_node.outputs[1], output_node.inputs[0], shading)
+
+        return material, texture_node
 
     @staticmethod
     def create_color_material( color, matName="Color", shading='SHADELESS' ):
@@ -239,7 +260,7 @@ class DuBLF_materials():
         outputNode = DuBLF_materials.clean_node_tree(node_tree)
 
         material.diffuse_color = color
-        material.blend_method = 'HASHED'
+        material.blend_method = 'BLEND'
         material.shadow_method = 'HASHED'
         
         rgbNode = node_tree.nodes.new('ShaderNodeRGB')
@@ -248,34 +269,8 @@ class DuBLF_materials():
         alphaNode.name = "Alpha"
         alphaNode.outputs[0].default_value = color[3]
         
-        # Create Shader
-        if shading == 'PRINCIPLED':
-            shaderNode = node_tree.nodes.new('ShaderNodeBsdfPrincipled')
-        elif shading == 'SHADELESS':
-            shaderNode = DuBLF_materials.get_shadeless_node(node_tree)
-        else:  # Emission Shading
-            shaderNode = node_tree.nodes.new('ShaderNodeEmission')
-        
-        # Connect color
-        node_tree.links.new(shaderNode.inputs[0], rgbNode.outputs[0])
-        
-        # Alpha
-        if shading == 'PRINCIPLED':
-            node_tree.links.new(shaderNode.inputs[18], alphaNode.outputs[0])
-        else:
-            bsdf_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent')
-
-            mix_shader = node_tree.nodes.new('ShaderNodeMixShader')
-            node_tree.links.new(mix_shader.inputs[0], alphaNode.outputs[0])
-            node_tree.links.new(mix_shader.inputs[1], bsdf_transparent.outputs[0])
-            node_tree.links.new(mix_shader.inputs[2], shaderNode.outputs[0])
-            shaderNode = mix_shader
-        
-        # Connect to output
-        node_tree.links.new(outputNode.inputs[0], shaderNode.outputs[0])
-        
-        # Align
-        DuBLF_materials.auto_align_nodes(node_tree)
+        # Create tree
+        DuBLF_materials.create_color_alpha_tree( node_tree, rgbNode.outputs[0], alphaNode.outputs[0], outputNode.inputs[0], shading)
         
         return material
 
@@ -418,6 +413,46 @@ class DuBLF_materials():
                 align(node)
 
         align(output_node)
+
+    @staticmethod
+    def create_color_alpha_tree(node_tree,color_input, alpha_input, shader_output, shading='SHADELESS'):
+        # Create Shader
+        if shading == 'PRINCIPLED':
+            shaderNode = node_tree.nodes.new('ShaderNodeBsdfPrincipled')
+        elif shading == 'SHADELESS':
+            shaderNode = DuBLF_materials.get_shadeless_node(node_tree)
+        else:  # Emission Shading
+            shaderNode = node_tree.nodes.new('ShaderNodeEmission')
+        
+        # Connect color
+        node_tree.links.new(shaderNode.inputs[0], color_input)
+        
+        # Alpha
+        if shading == 'PRINCIPLED':
+            node_tree.links.new(shaderNode.inputs[18], alpha_input)
+        else:
+            bsdf_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent')
+
+            mix_shader = node_tree.nodes.new('ShaderNodeMixShader')
+            node_tree.links.new(mix_shader.inputs[0], alpha_input)
+            node_tree.links.new(mix_shader.inputs[1], bsdf_transparent.outputs[0])
+            node_tree.links.new(mix_shader.inputs[2], shaderNode.outputs[0])
+            shaderNode = mix_shader
+        
+        # Connect to output
+        node_tree.links.new(shader_output, shaderNode.outputs[0])
+        
+        # Align
+        DuBLF_materials.auto_align_nodes(node_tree)
+
+    @staticmethod
+    def get_blank_image():
+        try:
+            im = bpy.data.images['OCA_blank']
+        except KeyError:
+            im = bpy.data.images.new('OCA_blank', 256, 256, alpha=True)
+            im.generated_color = (0.0,0.0,0.0,0.0)
+        return im
 
 def register():
     importlib.reload(rigging)

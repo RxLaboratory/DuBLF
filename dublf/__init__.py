@@ -25,7 +25,7 @@ from bpy_extras.image_utils import load_image  # pylint: disable=import-error
 import time
 import re
 import importlib
-from . import (rigging, oca)
+from . import (rigging,)
 
 # ========= UTILS ======================
 
@@ -428,13 +428,20 @@ class DuBLF_materials():
         node_tree.links.new(shaderNode.inputs[0], color_input)
         
         # Alpha
+        alpha_node = node_tree.nodes.new('ShaderNodeMath')
+        alpha_node.operation = 'MULTIPLY'
+        alpha_node.inputs[1].default_value = 1
+        alpha_node.label = "Opacity"
+        alpha_node.name = "Opacity"
         if shading == 'PRINCIPLED':
-            node_tree.links.new(shaderNode.inputs[18], alpha_input)
+            node_tree.links.new(alpha_node.inputs[0], alpha_input)
+            node_tree.links.new(shaderNode.inputs[18], alpha_node.outputs[0])
         else:
             bsdf_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent')
 
             mix_shader = node_tree.nodes.new('ShaderNodeMixShader')
-            node_tree.links.new(mix_shader.inputs[0], alpha_input)
+            node_tree.links.new(alpha_node.inputs[0], alpha_input)
+            node_tree.links.new(mix_shader.inputs[0], alpha_node.outputs[0])
             node_tree.links.new(mix_shader.inputs[1], bsdf_transparent.outputs[0])
             node_tree.links.new(mix_shader.inputs[2], shaderNode.outputs[0])
             shaderNode = mix_shader
@@ -456,11 +463,8 @@ class DuBLF_materials():
 
 def register():
     importlib.reload(rigging)
-    importlib.reload(oca)
 
     rigging.register()
-    oca.register()
 
 def unregister():
     rigging.unregister()
-    oca.register()

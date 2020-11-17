@@ -461,6 +461,16 @@ class DuBLF_materials():
             im.generated_color = (0.0,0.0,0.0,0.0)
         return im
 
+# ========= BLENDER UI  =================
+
+class DuBLF_bl_ui():
+    @staticmethod
+    def redraw():
+        """Forces a redraw of controls by moving the current frame"""
+        frame_current = bpy.context.scene.frame_current
+        bpy.context.scene.frame_set(frame_current-1)
+        bpy.context.scene.frame_set(frame_current)
+
 def register():
     importlib.reload(rigging)
 

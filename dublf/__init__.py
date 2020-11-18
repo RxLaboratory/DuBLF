@@ -467,9 +467,12 @@ class DuBLF_bl_ui():
     @staticmethod
     def redraw():
         """Forces a redraw of controls by moving the current frame"""
-        frame_current = bpy.context.scene.frame_current
-        bpy.context.scene.frame_set(frame_current-1)
-        bpy.context.scene.frame_set(frame_current)
+        try:
+            frame_current = bpy.context.scene.frame_current
+            bpy.context.scene.frame_set(frame_current-1)
+            bpy.context.scene.frame_set(frame_current)
+        except:
+            pass
 
 def register():
     importlib.reload(rigging)

@@ -17,37 +17,11 @@
 
 # <pep8 compliant>
 
-# The Duduf Blender Framework
-# Useful tools to develop scripts in Blender
-
 import bpy # pylint: disable=import-error
-import time
-from . import(
-    addons,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-)
 
-class DuBLF():
-    """Utilitaries for Duduf's tools"""
-    
-    toolName = "Dublf"
-    
-    def log( self, log = "", time_start = 0 ):
-        """Logs Duik activity"""
-        t = time.time() - time_start
-        print( " ".join( [ self.toolName , " (%.2f s):" % t , log ] ) )
-        
-    def showMessageBox( self, message = "", title = "Message Box", icon = 'INFO'):
-        """Displays a simple message box"""
-        def draw(self, context):
-            self.layout.alert = True
-            self.layout.label(text = message)
-        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+def is_addon_enabled( moduleName ):
+    addons = bpy.context.preferences.addons
+    for addon in addons:
+        if addon.module == moduleName:
+            return True
+    return False

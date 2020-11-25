@@ -17,37 +17,14 @@
 
 # <pep8 compliant>
 
-# The Duduf Blender Framework
-# Useful tools to develop scripts in Blender
-
 import bpy # pylint: disable=import-error
-import time
-from . import(
-    addons,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-)
 
-class DuBLF():
-    """Utilitaries for Duduf's tools"""
-    
-    toolName = "Dublf"
-    
-    def log( self, log = "", time_start = 0 ):
-        """Logs Duik activity"""
-        t = time.time() - time_start
-        print( " ".join( [ self.toolName , " (%.2f s):" % t , log ] ) )
-        
-    def showMessageBox( self, message = "", title = "Message Box", icon = 'INFO'):
-        """Displays a simple message box"""
-        def draw(self, context):
-            self.layout.alert = True
-            self.layout.label(text = message)
-        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+# Shape Keys tools and methods
+
+def get_key(context):
+    """Gets or creates (with a single basis key) the key from the active object"""
+    key = context.active_object.data.shape_keys
+    if key is not None: return key
+    c = context.copy()
+    bpy.ops.object.shape_key_add(c, from_mix=False)
+    return context.active_object.data.shape_keys

@@ -17,37 +17,19 @@
 
 # <pep8 compliant>
 
-# The Duduf Blender Framework
-# Useful tools to develop scripts in Blender
-
 import bpy # pylint: disable=import-error
-import time
-from . import(
-    addons,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-)
+from .dupyf import string
 
-class DuBLF():
-    """Utilitaries for Duduf's tools"""
-    
-    toolName = "Dublf"
-    
-    def log( self, log = "", time_start = 0 ):
-        """Logs Duik activity"""
-        t = time.time() - time_start
-        print( " ".join( [ self.toolName , " (%.2f s):" % t , log ] ) )
-        
-    def showMessageBox( self, message = "", title = "Message Box", icon = 'INFO'):
-        """Displays a simple message box"""
-        def draw(self, context):
-            self.layout.alert = True
-            self.layout.label(text = message)
-        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+# File system tools
+
+def get_fileBaseName( file ):
+    """Gets the name part of a file without the extension"""
+    filename = ""
+    if isinstance(file, bpy.types.OperatorFileListElement):
+        filename = file.name
+    else:
+        try:
+            filename = file.stem
+        except:
+            pass
+    return string.get_baseName(filename)

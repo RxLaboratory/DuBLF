@@ -6,7 +6,7 @@ class ADDON_OT_operator_name( bpy.types.Operator ):
 
     @classmethod
     def poll(cls, context):
-        pass
+        return True
 
     def execute(self, context):
         return {'FINISHED'}

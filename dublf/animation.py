@@ -17,38 +17,29 @@
 
 # <pep8 compliant>
 
-# The Duduf Blender Framework
-# Useful tools to develop scripts in Blender
-
 import bpy # pylint: disable=import-error
-import time
-from . import(
-    addons,
-    animation,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-)
 
-class DuBLF():
-    """Utilitaries for Duduf's tools"""
-    
-    toolName = "Dublf"
-    
-    def log( self, log = "", time_start = 0 ):
-        """Logs Duik activity"""
-        t = time.time() - time_start
-        print( " ".join( [ self.toolName , " (%.2f s):" % t , log ] ) )
-        
-    def showMessageBox( self, message = "", title = "Message Box", icon = 'INFO'):
-        """Displays a simple message box"""
-        def draw(self, context):
-            self.layout.alert = True
-            self.layout.label(text = message)
-        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+def get_previous_keyframe(fcurve, frame):
+    keyframes = fcurve.keyframe_points
+    if len(keyframes) == 0: return None
+    for keyframe in reversed(keyframes):
+        f = keyframe.co[0]
+        if f < frame: return keyframe
+    return None
+
+def get_next_keyframe(fcurve, frame):
+    keyframes = fcurve.keyframe_points
+    if len(keyframes) == 0: return None
+    for keyframe in keyframes:
+        f = keyframe.co[0]
+        if f > frame: return keyframe
+    return None
+
+def get_keyframe_at_frame(fcurve, frame):
+    keyframes = fcurve.keyframe_points
+    if len(keyframes) == 0: return None
+    for keyframe in keyframes:
+        f = keyframe.co[0]
+        if f == frame: return keyframe
+        if f > frame: return None
+    return None

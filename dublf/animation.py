@@ -40,3 +40,30 @@ def is_animated(obj):
     if anim_data is None: return False
     if anim_data.action is None: return False
     return len(anim_data.action.fcurves) > 0
+
+
+def remove_animated_index(data_path, index):
+    """In an animated index (like for a list), removes an index,
+    and offsets all keyframes with a higher index to continue referencing the same item"""
+    for action in bpy.data.actions:
+        fcurves = action.fcurves
+        for curve in fcurves:
+            if curve.data_path == data_path:
+                keyframes = curve.keyframe_points
+                for keyframe in reversed(keyframes):
+                    val = keyframe.co[1]
+                    if val == index:
+                        keyframes.remove(keyframe)
+                    elif val > index:
+                        keyframe.co[1] = val - 1
+
+def swap_animated_index(data_path, indexA, indexB):
+    """Swaps two indices in an animated index (like for a list)"""
+    for action in bpy.data.actions:
+        fcurves = action.fcurves
+        for curve in fcurves:
+            if curve.data_path == data_path:
+                keyframes = curve.keyframe_points
+                for keyframe in keyframes:
+                    if keyframe.co[1] == indexB: keyframe.co[1] = indexA
+                    elif keyframe.co[1] == indexA: keyframe.co[1] = indexB

@@ -24,7 +24,7 @@ def get_previous_keyframe(fcurve, frame):
     if len(keyframes) == 0: return None
     for keyframe in reversed(keyframes):
         f = keyframe.co[0]
-        if f < frame: return keyframe
+        if f <= frame: return keyframe
     return None
 
 def get_next_keyframe(fcurve, frame):
@@ -32,14 +32,11 @@ def get_next_keyframe(fcurve, frame):
     if len(keyframes) == 0: return None
     for keyframe in keyframes:
         f = keyframe.co[0]
-        if f > frame: return keyframe
+        if f >= frame: return keyframe
     return None
 
-def get_keyframe_at_frame(fcurve, frame):
-    keyframes = fcurve.keyframe_points
-    if len(keyframes) == 0: return None
-    for keyframe in keyframes:
-        f = keyframe.co[0]
-        if f == frame: return keyframe
-        if f > frame: return None
-    return None
+def is_animated(obj):
+    anim_data = obj.animation_data
+    if anim_data is None: return False
+    if anim_data.action is None: return False
+    return len(anim_data.action.fcurves) > 0

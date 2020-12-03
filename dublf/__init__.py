@@ -22,19 +22,6 @@
 
 import bpy # pylint: disable=import-error
 import time
-from . import(
-    addons,
-    animation,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-)
 
 class DuBLF():
     """Utilitaries for Duduf's tools"""

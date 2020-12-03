@@ -23,6 +23,25 @@
 import bpy # pylint: disable=import-error
 import time
 
+from . import( # DuBLF Submodules
+    addons,
+    animation,
+    collections,
+    context,
+    fs,
+    handlers,
+    materials,
+    rigging,
+    rna,
+    shapeKeys,
+    ui,
+)
+
+from . import ( # pylint: disable=import-error # DuPYF Files
+    oca,
+    string,
+)
+
 class DuBLF():
     """Utilitaries for Duduf's tools"""
     

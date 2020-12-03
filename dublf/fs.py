@@ -18,7 +18,7 @@
 # <pep8 compliant>
 
 import bpy # pylint: disable=import-error
-from .dupyf import string
+from . import string
 
 # File system tools
 

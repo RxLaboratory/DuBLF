@@ -75,3 +75,11 @@ def swap_animated_index(obj, data_path, indexA, indexB):
         for keyframe in keyframes:
             if keyframe.co[1] == indexB: keyframe.co[1] = indexA
             elif keyframe.co[1] == indexA: keyframe.co[1] = indexB
+
+def remove_all_keyframes(obj, data_path):
+    """Removes all keyframes for this data path"""
+    curves = get_curves(obj, data_path)
+    for curve in curves:
+        keyframes = curve.keyframe_points
+        for keyframe in reversed(keyframes):
+            keyframes.remove(keyframe)

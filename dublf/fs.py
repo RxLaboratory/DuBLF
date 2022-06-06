@@ -17,8 +17,8 @@
 
 # <pep8 compliant>
 
+import os
 import bpy # pylint: disable=import-error
-from . import string
 
 # File system tools
 
@@ -32,4 +32,4 @@ def get_fileBaseName( file ):
             filename = file.stem
         except:
             pass
-    return string.get_baseName(filename)
+    return os.path.basename(filename)

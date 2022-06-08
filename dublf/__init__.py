@@ -32,6 +32,8 @@ from . import( # DuBLF files
     rna,
     shapeKeys,
     ui,
+    image,
+    geo
 )
 
 from . import ( # pylint: disable=import-error # DuPYF Files

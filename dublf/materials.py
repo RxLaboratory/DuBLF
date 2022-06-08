@@ -21,6 +21,12 @@ import bpy # pylint: disable=import-error
 from bpy_extras.image_utils import load_image  # pylint: disable=import-error
 
 def create_image_material( image, matName="Image", shading = 'SHADELESS'):
+    
+    im = load_image(image, check_existing=True, force_reload=True)
+    return create_im_material(im, matName, shading)
+    
+
+def create_im_material(image, matName="Image", shading='SHADELESS'):
     material = bpy.data.materials.new(matName)
     material.use_nodes = True
     node_tree = material.node_tree
@@ -30,8 +36,7 @@ def create_image_material( image, matName="Image", shading = 'SHADELESS'):
     material.shadow_method = 'HASHED'
 
     texture_node = node_tree.nodes.new('ShaderNodeTexImage')
-    im = load_image(image, check_existing=True, force_reload=True)
-    texture_node.image = im
+    texture_node.image = image
     texture_node.show_texture = True
     texture_node.extension = 'CLIP'
 
@@ -39,6 +44,7 @@ def create_image_material( image, matName="Image", shading = 'SHADELESS'):
     create_color_alpha_tree( node_tree, texture_node.outputs[0], texture_node.outputs[1], output_node.inputs[0], shading)
 
     return material, texture_node
+
 
 def create_color_material( color, matName="Color", shading='SHADELESS' ):
     material = bpy.data.materials.new(matName)

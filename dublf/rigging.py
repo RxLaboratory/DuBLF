@@ -127,8 +127,9 @@ def applyParentInverse( obj ):
         # Re-Apply the difference
         obj.matrix_basis = obj.parent.matrix_world.inverted() @ origin
 
-def set_object_parent( context, children, parent ):
-    override = bpy.context.copy()
-    override['selected_objects'] = children
-    override['active_object'] = parent
-    bpy.ops.object.parent_set(override, type='OBJECT')
+def set_object_parent( children, parent ):
+    for child in children:
+        origin = child.matrix_world
+        child.parent = parent
+        child.matrix_parent_inverse = parent.matrix_world.inverted()
+        child.matrix_world = origin

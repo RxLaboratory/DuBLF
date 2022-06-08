@@ -38,7 +38,7 @@ def remove_collection_from_collection(collection, col):
     if col.name in children:
         children.unlink(col)
     for child in collection.children:
-        remove_from_collection(child, col)
+        remove_collection_from_collection(child, col)
 
 def move_to_collection( collection, obj):
     """Moves an object from the main collection to a specific one"""

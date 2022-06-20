@@ -71,6 +71,7 @@ def duplicateBone( armature_data , sourceBone , name ):
     b.tail = sourceBone.tail
     b.roll = sourceBone.roll
     b.parent = sourceBone.parent
+    b.bbone_segments = sourceBone.bbone_segments
     return b
 
 def addCustomProperty( obj, name, default, options = {} ):

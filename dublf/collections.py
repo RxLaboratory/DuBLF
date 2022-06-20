@@ -19,6 +19,18 @@
 
 import bpy # pylint: disable=import-error
 
+def get_create_collection( collection_name ):
+    """Gets, or creates if needed, a collection by its name.
+    It is not added to the current scene."""
+    
+    for col in bpy.data.collections:
+        if col.name == collection_name:
+            # Check if it's in the scene
+            
+            return col
+    col = bpy.data.collections.new(collection_name)
+    return col
+
 def add_collection_to_scene( scene, collectionName ):
     col = bpy.data.collections.new(collectionName)
     scene.collection.children.link(col)

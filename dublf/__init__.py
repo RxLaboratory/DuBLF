@@ -33,13 +33,18 @@ from . import( # DuBLF files
     shapeKeys,
     ui,
     image,
-    geo
+    geo,
+    operators
 )
 
 from . import ( # pylint: disable=import-error # DuPYF Files
     debug,
     oca,
+    updater,
 )
 
-        
-    
+def register():
+    operators.register()
+
+def unregister():
+    operators.unregister()

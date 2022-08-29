@@ -1,10 +1,10 @@
 #!/bin/bash
 
-addons_path=~/.config/blender/2.82/scripts/addons
+addons_path=~/.config/blender/3.2/scripts/addons
 
 src_name=add-on_template
 dublf_path=../../DuBLF/dublf/
-dupyf_path=../../../DuPYF/DuPYF/dupyf/
+dupyf_path=../../../Python/DuPYF/dupyf/
 
 src_path=../$src_name/
 

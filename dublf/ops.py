@@ -42,144 +42,114 @@ class UpdateBox(bpy.types.Operator):
     bl_label = "Update available"
     bl_icon = "INFO"
 
-    addonModuleName: bpy.props.StringProperty(
-        default = ""
-    )
- 
-    toolName: bpy.props.StringProperty(
-        default = 'Tool',
-        description = "The name of the tool",
-        name = "Tool Name"
-    )
+    openURLOp = "dublf.openurl"
+    addonName = ""
+    toolName = "Tool"
+    newVersion = ''
+    descr = "Description"
+    currentVersion = "0.0.0"
+    downloadURL = "http://rxlaboratory.org/"
+    changelogURL = ""
+    donateURL = "http://donate.rxlab.info"
+    updateAPIURL = "https://api.rxlab.io"
+    preRelease = False
 
-    newVersion: bpy.props.StringProperty(
-        default = ''
-    )
-
-    descr: bpy.props.StringProperty(
-        default = '',
-        name = "Description"
-    )
-
-    currentVersion: bpy.props.StringProperty(
-        default = "0.0.0"
-    )
-
-    downloadURL: bpy.props.StringProperty(
-        default = "http://rxlaboratory.org"
-    )
-
-    changelogURL: bpy.props.StringProperty(
-        default = ""
-    )
-
-    donateURL: bpy.props.StringProperty(
-        default = "http://donate.rxlab.info"
-    )
- 
-    updateAPIURL: bpy.props.StringProperty(
-        default= "https://api.rxlab.io"
-    )
-
-    preRelease: bpy.props.BoolProperty(
-        default=False
-    )
+    showDialog = True
 
     discreet: bpy.props.BoolProperty(
         default=False
     )
 
     def execute(self, context):
-        if self.addonModuleName != "":
-            addon = context.preferences.addons[self.addonModuleName]
+
+        if self.__class__.addonName != "":
+            addon = context.preferences.addons[self.__class__.addonName]
             addonPrefs = addon.preferences
             addonPrefs.last_update_check = int(time())
+            # Force save prefs
+            addonPrefs.is_dirty = True
+            bpy.ops.wm.save_userpref()
 
         return {'FINISHED'}
  
     def invoke(self, context, event):
-        if self.newVersion == "":
+       
+        if self.__class__.newVersion == "":
             addonPrefs = None
+
             # Get update info
-            if self.addonModuleName != "":
-                addon = context.preferences.addons[self.addonModuleName]
+            if self.__class__.addonName != "":
+                addon = context.preferences.addons[self.__class__.addonName]
                 mod = sys.modules.get(addon.module)
                 addonInfo = mod.bl_info
-                self.toolName = addonInfo["name"]
+                self.__class__.toolName = addonInfo["name"]
                 version = addonInfo["version"]
-                self.currentVersion = str(version[0]) + "." + str(version[1]) + "." + str(version[2])
-                
+                self.__class__.currentVersion = str(version[0]) + "." + str(version[1]) + "." + str(version[2])
+
                 if self.discreet:
                     addonPrefs = addon.preferences
                     if not addonPrefs.check_updates:
+                        self.showDialog = False
                         return {'CANCELLED'}
                     now = time()
                     last = addonPrefs.last_update_check
-                    if now - last < 86400:
-                        return {'CANCELLED'}
 
-            info = checkUpdate( self.updateAPIURL, self.toolName, self.currentVersion, "blender", bpy.app.version_string, self.preRelease)
+                    if now - last < 86400:
+                        self.showDialog = False
+                        return {'CANCELLED'}
+                    
+                    addonPrefs.last_update_check = int(now)
+                    # Force save prefs
+                    addonPrefs.is_dirty = True
+                    bpy.ops.wm.save_userpref()
+                    self.showDialog = True
+
+            info = checkUpdate( self.__class__.updateAPIURL, self.__class__.toolName, self.__class__.currentVersion, "blender", bpy.app.version_string, self.__class__.preRelease)
             if not info["update"]:
                 if not self.discreet:
-                    showMessageBox("Up-to-date!", self.toolName)
+                    showMessageBox("Up-to-date!", self.__class__.toolName)
                 return {'CANCELLED'}
 
-            self.newVersion = info["version"]
+            self.__class__.newVersion = info["version"]
             if 'donateURL' in info:
                 if info['donateURL'] != "":
-                    self.donateURL = info['donateURL']
+                    self.__class__.donateURL = info['donateURL']
             if 'changelogURL' in info:
                 if info['changelogURL'] != "":
-                    self.changelogURL = info['changelogURL']
+                    self.__class__.changelogURL = info['changelogURL']
             if 'downloadURL' in info:
                 if info['downloadURL'] != "":
-                    self.downloadURL = info['downloadURL']
-            self.descr = info['description']
+                    self.__class__.downloadURL = info['downloadURL']
+            self.__class__.descr = info['description']
 
-        return context.window_manager.invoke_props_dialog(self, width=400)
+        if self.showDialog or not self.discreet:
+            return context.window_manager.invoke_props_dialog(self, width=400)
+        else:
+            return {'CANCELLED'}
  
     def draw(self, context):
         layout = self.layout
-        layout.label(text="New " + self.toolName + ", version " + self.newVersion)
+        layout.label(text="New " + self.__class__.toolName + ", version " + self.__class__.newVersion)
         layout.separator()
 
         wrapper = textwrap.TextWrapper(width=70)
-        lines = self.descr.split("\n")
+        lines = self.__class__.descr.split("\n")
         descrList = []
         for line in lines:
             descrList += wrapper.wrap(line)
         
-        #Now in the panel:
+        # Now in the panel:
         for text in descrList: 
             row = layout.row(align = True)
             row.alignment = 'EXPAND'
             row.label(text=text)
 
         layout.separator()
-        layout.label(text="Current version: " + self.currentVersion)
+        layout.label(text="Current version: " + self.__class__.currentVersion)
         
-        if self.downloadURL != "":
-            layout.operator(OpenURL.bl_idname, text="Download", icon="URL").url = self.downloadURL
-        if self.changelogURL != "":
-            layout.operator(OpenURL.bl_idname, text="Changelog", icon="PRESET").url = self.changelogURL
-        if self.donateURL != "":
-            layout.operator(OpenURL.bl_idname, text="Donate", icon="HEART").url = self.donateURL
-
-classes = (
-    OpenURL,
-    UpdateBox
-)
-
-def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
- 
-def unregister():
-    for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
- 
-if __name__ == "__main__":
-    register()
-
-    bpy.ops.dublf.updatebox('INVOKE_DEFAULT', descr = """A Nice description
-    for a new tool!""", downloadURL = "http://rxlaboratory.org", changelogURL = "http://rxlaboratory.org")
+        if self.__class__.downloadURL != "":
+            layout.operator(self.__class__.openURLOp, text="Download", icon="URL").url = self.__class__.downloadURL
+        if self.__class__.changelogURL != "":
+            layout.operator(self.__class__.openURLOp, text="Changelog", icon="PRESET").url = self.__class__.changelogURL
+        if self.__class__.donateURL != "":
+            layout.operator(self.__class__.openURLOp, text="Donate", icon="HEART").url = self.__class__.donateURL

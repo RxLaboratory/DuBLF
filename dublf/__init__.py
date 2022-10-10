@@ -28,13 +28,13 @@ from . import( # DuBLF files
     fs,
     handlers,
     materials,
+    ops,
     rigging,
     rna,
     shapeKeys,
     ui,
     image,
-    geo,
-    operators
+    geo
 )
 
 from . import ( # pylint: disable=import-error # DuPYF Files
@@ -42,9 +42,3 @@ from . import ( # pylint: disable=import-error # DuPYF Files
     oca,
     updater,
 )
-
-def register():
-    operators.register()
-
-def unregister():
-    operators.unregister()

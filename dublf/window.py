@@ -17,29 +17,22 @@
 
 # <pep8 compliant>
 
-# The Duduf Blender Framework
-# Useful tools to develop scripts in Blender
+import bpy # pylint: disable=import-error
 
-from . import( # DuBLF files
-    addons,
-    animation,
-    collections,
-    context,
-    fs,
-    handlers,
-    materials,
-    ops,
-    rigging,
-    rna,
-    shapeKeys,
-    ui,
-    image,
-    geo,
-    window
-)
+def popup_view3d():
+    """Creates a 3D view in a new window
+    
+    Return: Tuple(window, area)"""
+    bpy.ops.wm.window_new()
+    area = bpy.context.area
+    area.type = 'VIEW_3D'
+    return (bpy.context.window, area)
 
-from . import ( # pylint: disable=import-error # DuPYF Files
-    debug,
-    oca,
-    updater,
-)
+def popup_camera_view():
+    """Creates a 3D view in a new window
+    and sets it to camera view
+    
+    Return: Tuple(window, area)"""
+    view = popup_view3d()
+    bpy.context.space_data.region_3d.view_perspective = 'CAMERA'
+    return view

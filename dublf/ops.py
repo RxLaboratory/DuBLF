@@ -20,10 +20,54 @@
 import webbrowser
 import bpy
 import sys
+import platform
 from time import time
 import textwrap 
 from .updater import checkUpdate
 from .ui import showMessageBox
+
+class DUBLF_OT_ReportIssue(bpy.types.Operator):
+    bl_idname = "dublf.reportIssue"
+    bl_label = "Bug Report / Feature Request"
+    bl_icon = "ERROR"
+
+    addonName = ''
+    toolName = "Tool"
+    toolVersion = '0.0.0'
+    osName = ''
+    osVersion = ''
+    hostName = "Blender"
+    hostVersion = ''
+    reportURL = "https://rxlaboratory.org/issues"
+
+    def execute(self, context):
+
+        # Get tool name and version
+        if self.__class__.addonName != "":
+            addon = context.preferences.addons[self.__class__.addonName]
+            mod = sys.modules.get(addon.module)
+            addonInfo = mod.bl_info
+            self.__class__.toolName = addonInfo["name"]
+            version = addonInfo["version"]
+            self.__class__.toolVersion = str(version[0]) + "." + str(version[1]) + "." + str(version[2])
+
+        # Get Environment info
+        self.__class__.hostVersion = bpy.app.version_string
+        # Check os
+        self.__class__.osName  = platform.system()
+        if self.__class__.osName == "Darwin":
+            self.__class__.osName = "mac"
+        self.__class__.osVersion = platform.version()
+
+        webbrowser.open( self.reportURL +
+                        '?rx-tool=' + self.__class__.toolName +
+                        '&rx-tool-version=' + self.__class__.toolVersion +
+                        '&rx-os=' + self.__class__.osName +
+                        '&rx-os-version=' + self.__class__.osVersion +
+                        '&rx-host=' + self.__class__.hostName +
+                        '&rx-host-version=' + self.__class__.hostVersion )
+
+        return {'FINISHED'}
 
 class OpenURL(bpy.types.Operator):
     bl_idname = "dublf.openurl"
